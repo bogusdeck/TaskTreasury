@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    
+    <title>{% block title %}{% endblock title %}</title>
+  </head>
+  <body class="bg-gray-900">
+    <!-- navbar goes here -->
+    <nav class="bg-black text-white text-xl p-5 text-center mb-1 font-semibold">
+        <p>Hello{% block name%}{%endblock name%}</p>
+    </nav>   
+    {%block content%}{%endblock content%}
+  </body>
+  </html>

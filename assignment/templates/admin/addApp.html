@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Add Task{% endblock %}
+{% block name%} admin {%endblock name%}
+{% block content %}
+
+<a href = "{% url 'adminHome' %}" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">Back</a>
+<div class="flex flex-col items-center justify-center mt-20">
+  <h2 class="flex text-4xl text-white bg-orange-500 p-4 mb-2">Add task</h2>
+  <form method="post" class="flex flex-col space-y-4 text-black bg-orange-300 p-5" enctype="multipart/form-data">
+    {% csrf_token %} {{ form.as_p }}
+    <button type="submit" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">SUBMIT</button>
+  </form>
+</div>
+  
+  <script>
+    function updateSubcategories() {
+      var categorySelect = document.getElementById('id_category');
+      var subcategorySelect = document.getElementById('id_subcategory');
+      var category = categorySelect.value;
+      subcategorySelect.innerHTML = ''; 
+      
+      var subcategories = {
+        "social networking": [
+                "Messaging",
+                "Social Media",
+                "Dating",
+                "Professional Networking",
+            ],
+            "entertainment": [
+                "Video Streaming",
+                "Music Streaming",
+                "Gaming",
+                "Live Streaming",
+                "Ticket Booking",
+            ],
+            "utilities": [
+                "Weather",
+                "Calculator",
+                "File Management",
+                "Translation",
+                "QR Code Scanner",
+            ],
+            "productivity": [
+                "Note-taking",
+                "Task Management",
+                "Document Editing",
+                "Calendar",
+                "Email",
+            ],
+            "health and fitness": [
+                "Diet Tracking",
+                "Meditation",
+                "Yoga",
+                "Sleep Tracking",
+            ],
+            "finance": [
+                "Banking",
+                "Expense Tracking",
+                "Investment",
+                "Budgeting",
+                "Tax Filing",
+            ],
+            "shopping": [
+                "E-commerce",
+                "Grocery Delivery",
+                "Coupon and Deals",
+                "Fashion",
+                "Second-hand Goods",
+            ],
+            "news": [
+                "General News",
+                "Tech News",
+                "Sports News",
+                "Finance News",
+                "Local News",
+            ],
+            "lifestyle": [
+                "Food and Drink",
+                "Home Decor",
+                "Fashion and Beauty",
+                "Dating",
+                "Horoscopes",
+            ],  
+      };
+      
+      if (subcategories.hasOwnProperty(category)) {
+        subcategories[category].forEach(function(subcategory) {
+          var option = document.createElement('option');
+          option.textContent = subcategory;
+          option.value = subcategory;
+          subcategorySelect.appendChild(option);
+        });
+      }
+    }
+    
+    document.getElementById('id_category').addEventListener('change', updateSubcategories);
+    
+    updateSubcategories();
+  </script>
+{% endblock %}

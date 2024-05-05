@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Points{% endblock %}
+{% if user.is_authenticated %}
+{% block name%} <span class="test-white"> {{user.fname}} {{user.lname}} </span> {%endblock name%}
+{% endif %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+
+<div class="grid grid-cols-5 gap-4">
+    <div class="col-span-1 bg-gray-200 space-y-5 mt-5 mb-5 pb-4">
+        <a href="{% url 'applist' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Home</a>
+        <a href="{% url 'profile' email=user.email %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Profile</a>
+        <a href="{% url 'points' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">points</a>
+        <a href="{% url 'task' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Task</a>
+        <form action="{% url 'signout' %}" method="post" class="flex items-center justify-center ">
+          {% csrf_token %}
+          <button type="submit" class="text-white p-2 bg-orange-500 flex flex-col m-4">Log Out</button>
+        </form>
+    </div>
+    <div class="col-span-4 bg-gray-300 p-3">
+        <div class="flex flex-col items-center justify-center h-full">
+            <div class="flex items-center justify-center font-bold text-4xl">Total point</div>
+            <div class="bg-orange-500 rounded-xl text-4xl p-4 m-4">
+            {{user.points}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
