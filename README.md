@@ -2,6 +2,14 @@
     <img width="200" src="https://github.com/Prome-theus/django-assignment/assets/80052733/e768091a-a844-48c4-8fc0-e5a9bc3bd83d">
 </p>
 
+If you like my work, consider buying me a coffee! ☕️
+<div align="center">
+<a href="https://www.buymeacoffee.com/bogusdeck" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" width="150" />
+</a>
+</div>
+
+
 ## Django TaskReward
 
 Django Web Application: Task Reward System
