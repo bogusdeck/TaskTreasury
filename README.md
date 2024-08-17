@@ -1,5 +1,5 @@
 <p align="center">
-    <img width="200" src="https://github.com/Prome-theus/django-assignment/assets/80052733/e768091a-a844-48c4-8fc0-e5a9bc3bd83d">
+    <img width="200" src="https://github.com/bogusdeck/django-assignment/assets/80052733/e768091a-a844-48c4-8fc0-e5a9bc3bd83d">
 </p>
 
 If you like my work, consider buying me a coffee! ☕️
