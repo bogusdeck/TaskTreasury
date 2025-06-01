@@ -1,13 +1,16 @@
 import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'django-insecure-5!iwk2zzjsd1#3)c_ea#3b=b9$&ud&dnpgbswjw&6xuly6nky@'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-5!iwk2zzjsd1#3)c_ea#3b=b9$&ud&dnpgbswjw&6xuly6nky@')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -63,11 +66,17 @@ WSGI_APPLICATION = 'assignment.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import dj_database_url
+
+# Use Supabase PostgreSQL with DATABASE_URL from .env file
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -104,7 +113,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
 ]
 
-STATIC_ROOT = BASE_DIR + 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 

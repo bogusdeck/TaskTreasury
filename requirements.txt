@@ -18,3 +18,8 @@ requests-oauthlib==1.0.0
 six==1.11.0
 sqlparse==0.5.0
 urllib3==1.24.2
+gunicorn==21.2.0
+whitenoise==6.6.0
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+python-dotenv==1.0.0

@@ -1,5 +1,28 @@
-.vscode
+# IDE files
+.vscode/
+.idea/
 
-.idea
+# Virtual environments
+.venv/
+venv/
+env/
 
-.venv
+# Environment variables
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Static files collected
+staticfiles/
+
+# Media files
+media/
