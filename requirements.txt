@@ -8,7 +8,7 @@ django-rest-auth==0.9.3
 djangorestframework==3.14.0
 dynamic-django-forms==0.1.11
 idna==2.7
-Markdown==3.0.1
+Markdown==3.5.2
 oauthlib==2.1.0
 pillow==10.3.0
 python3-openid==3.1.0
@@ -23,5 +23,5 @@ whitenoise==6.6.0
 psycopg2-binary==2.9.9
 dj-database-url==0.5.0
 python-dotenv==1.0.0
-setuptools==65.5.0
+setuptools==69.2.0
 packaging==23.2
