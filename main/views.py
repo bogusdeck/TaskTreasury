@@ -3,7 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 import base64
 
-from .firebase_config import get_file_from_database
+from .firebase_firestore_config import get_file_from_firestore
 
 def health_check(request):
     """
@@ -15,12 +15,12 @@ def health_check(request):
 @cache_control(max_age=86400, public=True)  # Cache for 24 hours
 def serve_media_file(request, path):
     """
-    Serve media files from Firebase Realtime Database.
-    This view retrieves files stored as base64-encoded strings in the database
+    Serve media files from Firebase Firestore.
+    This view retrieves files stored as base64-encoded strings in Firestore documents
     and serves them with the appropriate content type.
     """
-    # Get file data from Firebase Realtime Database
-    file_data = get_file_from_database(path)
+    # Get file data from Firebase Firestore
+    file_data = get_file_from_firestore(path)
     
     if not file_data or 'data' not in file_data:
         raise Http404(f"File not found: {path}")

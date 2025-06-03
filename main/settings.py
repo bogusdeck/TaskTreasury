@@ -147,10 +147,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Firebase Storage settings
 if not DEBUG or os.environ.get('USE_FIREBASE_STORAGE') == 'True':
-    # Use Firebase Realtime Database for media storage instead of Firebase Storage
-    DEFAULT_FILE_STORAGE = 'main.firebase_database_storage.FirebaseDatabaseStorage'
+    # Use Firebase Firestore for media storage instead of Firebase Storage
+    DEFAULT_FILE_STORAGE = 'main.firebase_firestore_storage.FirebaseFirestoreStorage'
     
-    # Database URL format: https://{project-id}-default-rtdb.firebaseio.com
-    FIREBASE_DATABASE_URL = f"https://{os.environ.get('FIREBASE_PROJECT_ID', '')}-default-rtdb.firebaseio.com"
+    # Firestore is automatically configured with the Firebase project ID
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

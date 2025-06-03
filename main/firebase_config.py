@@ -1,7 +1,7 @@
 import os
 import base64
 import firebase_admin
-from firebase_admin import credentials, storage, db
+from firebase_admin import credentials, storage, firestore
 import mimetypes
 
 FIREBASE_CONFIG = {
@@ -33,7 +33,7 @@ def initialize_firebase(use_database=False):
         else:
             app = firebase_admin.initialize_app(cred)
             print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
-        
+
         return app
 
 def get_database_ref(path='media'):
@@ -58,17 +58,17 @@ def upload_file_to_database(file_path, destination_path):
     ref = get_database_ref()
     if not ref:
         return None
-    
+
     try:
         with open(file_path, 'rb') as file:
             file_data = file.read()
-        
+
         mime_type, _ = mimetypes.guess_type(file_path)
         if not mime_type:
             mime_type = 'application/octet-stream'
-        
+
         encoded_data = base64.b64encode(file_data).decode('utf-8')
-        
+
         file_metadata = {
             'name': os.path.basename(file_path),
             'content_type': mime_type,
@@ -76,17 +76,17 @@ def upload_file_to_database(file_path, destination_path):
             'data': encoded_data,
             'uploaded_at': {'.sv': 'timestamp'}
         }
-        
+
         safe_path = destination_path.replace('.', '_dot_')
         safe_path = safe_path.replace('$', '_dollar_')
         safe_path = safe_path.replace('#', '_hash_')
         safe_path = safe_path.replace('[', '_lbracket_')
         safe_path = safe_path.replace(']', '_rbracket_')
         safe_path = safe_path.replace('/', '_slash_')
-        
+
         file_ref = ref.child(safe_path)
         file_ref.set(file_metadata)
-        
+
         return f"/media/{destination_path}"
     except Exception as e:
         print(f"Error uploading file to database: {str(e)}")
@@ -96,10 +96,10 @@ def upload_from_memory_to_database(file_bytes, destination_path, content_type, f
     ref = get_database_ref()
     if not ref:
         return None
-    
+
     try:
         encoded_data = base64.b64encode(file_bytes).decode('utf-8')
-        
+
         file_metadata = {
             'name': filename,
             'content_type': content_type,
@@ -107,17 +107,17 @@ def upload_from_memory_to_database(file_bytes, destination_path, content_type, f
             'data': encoded_data,
             'uploaded_at': {'.sv': 'timestamp'}
         }
-        
+
         safe_path = destination_path.replace('.', '_dot_')
         safe_path = safe_path.replace('$', '_dollar_')
         safe_path = safe_path.replace('#', '_hash_')
         safe_path = safe_path.replace('[', '_lbracket_')
         safe_path = safe_path.replace(']', '_rbracket_')
         safe_path = safe_path.replace('/', '_slash_')
-        
+
         file_ref = ref.child(safe_path)
         file_ref.set(file_metadata)
-        
+
         return f"/media/{destination_path}"
     except Exception as e:
         print(f"Error uploading file to database: {str(e)}")
@@ -127,7 +127,7 @@ def get_file_from_database(file_path):
     ref = get_database_ref()
     if not ref:
         return None
-    
+
     try:
         safe_path = file_path.replace('.', '_dot_')
         safe_path = safe_path.replace('$', '_dollar_')
@@ -135,13 +135,13 @@ def get_file_from_database(file_path):
         safe_path = safe_path.replace('[', '_lbracket_')
         safe_path = safe_path.replace(']', '_rbracket_')
         safe_path = safe_path.replace('/', '_slash_')
-        
+
         file_ref = ref.child(safe_path)
         file_data = file_ref.get()
-        
+
         if not file_data:
             return None
-        
+
         return file_data
     except Exception as e:
         print(f"Error getting file from database: {str(e)}")
@@ -151,7 +151,7 @@ def delete_file_from_database(file_path):
     ref = get_database_ref()
     if not ref:
         return False
-    
+
     try:
         safe_path = file_path.replace('.', '_dot_')
         safe_path = safe_path.replace('$', '_dollar_')
@@ -159,7 +159,7 @@ def delete_file_from_database(file_path):
         safe_path = safe_path.replace('[', '_lbracket_')
         safe_path = safe_path.replace(']', '_rbracket_')
         safe_path = safe_path.replace('/', '_slash_')
-        
+
         file_ref = ref.child(safe_path)
         file_ref.delete()
         return True
