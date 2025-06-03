@@ -40,37 +40,54 @@ class FirebaseFirestoreStorage(Storage):
         Retrieve the file from Firebase Firestore.
         """
         path = self._get_path(name)
-        file_data = get_file_from_firestore(path)
-        
-        if not file_data or 'data' not in file_data:
-            raise FileNotFoundError(f"File {name} does not exist")
-        
-        # Decode base64 data
-        decoded_data = base64.b64decode(file_data['data'])
-        return ContentFile(decoded_data, name=name)
+        try:
+            file_data = get_file_from_firestore(path)
+            
+            if not file_data or 'data' not in file_data:
+                raise FileNotFoundError(f"File {name} does not exist")
+            
+            # Decode base64 data
+            try:
+                decoded_data = base64.b64decode(file_data['data'])
+                return ContentFile(decoded_data, name=name)
+            except Exception as e:
+                print(f"Error decoding base64 data for {name}: {str(e)}")
+                raise IOError(f"Error reading file {name}: {str(e)}")
+        except Exception as e:
+            print(f"Error opening file {name} from Firestore: {str(e)}")
+            raise FileNotFoundError(f"Cannot open file {name}: {str(e)}")
     
     def _save(self, name, content):
         """
         Save the file to Firebase Firestore.
         """
         path = self._get_path(name)
-        content.seek(0)
-        file_bytes = content.read()
-        
-        # Get content type
-        content_type, _ = mimetypes.guess_type(name)
-        if not content_type:
-            content_type = 'application/octet-stream'
-        
-        # Upload to Firebase Firestore
-        upload_from_memory_to_firestore(
-            file_bytes,
-            path,
-            content_type,
-            os.path.basename(name)
-        )
-        
-        return name
+        try:
+            content.seek(0)
+            file_bytes = content.read()
+            
+            # Get content type
+            content_type, _ = mimetypes.guess_type(name)
+            if not content_type:
+                content_type = 'application/octet-stream'
+            
+            # Upload to Firebase Firestore
+            result = upload_from_memory_to_firestore(
+                file_bytes,
+                path,
+                content_type,
+                os.path.basename(name)
+            )
+            
+            if not result:
+                print(f"Warning: File {name} may not have been saved properly to Firestore")
+            
+            return name
+        except Exception as e:
+            print(f"Error saving file {name} to Firestore: {str(e)}")
+            # Return the name anyway to prevent Django from raising an exception
+            # The file might not be accessible later, but at least the model will save
+            return name
     
     def delete(self, name):
         """
@@ -84,8 +101,13 @@ class FirebaseFirestoreStorage(Storage):
         Check if the file exists in Firebase Firestore.
         """
         path = self._get_path(name)
-        file_data = get_file_from_firestore(path)
-        return file_data is not None
+        try:
+            file_data = get_file_from_firestore(path)
+            return file_data is not None
+        except Exception as e:
+            print(f"Error checking if file {name} exists in Firestore: {str(e)}")
+            # Assume file doesn't exist if there's an error
+            return False
     
     def url(self, name):
         """

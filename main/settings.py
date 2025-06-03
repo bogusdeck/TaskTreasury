@@ -147,9 +147,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Firebase Storage settings
 if not DEBUG or os.environ.get('USE_FIREBASE_STORAGE') == 'True':
-    # Use Firebase Firestore for media storage instead of Firebase Storage
-    DEFAULT_FILE_STORAGE = 'main.firebase_firestore_storage.FirebaseFirestoreStorage'
-    
-    # Firestore is automatically configured with the Firebase project ID
+    try:
+        # Try to import and initialize Firebase
+        from main.firebase_firestore_config import initialize_firebase
+        firebase_app = initialize_firebase()
+        
+        if firebase_app:
+            # Use Firebase Firestore for media storage
+            DEFAULT_FILE_STORAGE = 'main.firebase_firestore_storage.FirebaseFirestoreStorage'
+            print("Using Firebase Firestore for media storage")
+        else:
+            # Fallback to default file storage if Firebase initialization fails
+            print("WARNING: Firebase initialization failed, using default file storage")
+    except Exception as e:
+        print(f"ERROR: Could not initialize Firebase: {str(e)}")
+        # Firebase initialization failed, use default storage
+        pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

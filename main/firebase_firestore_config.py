@@ -26,19 +26,21 @@ def initialize_firebase():
         app = firebase_admin.get_app()
         return app
     except ValueError:
-        # Initialize Firebase with credentials
-        cred = credentials.Certificate(FIREBASE_CONFIG)
-        
-        # Initialize Firebase app
-        app = firebase_admin.initialize_app(cred)
-        print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
-        
-        return app
+        try:
+            cred = credentials.Certificate(FIREBASE_CONFIG)
+            app = firebase_admin.initialize_app(cred)
+            print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
+            return app
+        except Exception as e:
+            print(f"Error initializing Firebase: {str(e)}")
+            return None
 
 # Get a reference to the Firestore database
 def get_firestore_db():
     # Initialize Firebase
-    initialize_firebase()
+    app = initialize_firebase()
+    if not app:
+        return None
     try:
         # Get Firestore client
         db = firestore.client()
@@ -143,20 +145,22 @@ def get_file_from_firestore(file_path):
     # Get media collection reference
     collection_ref = get_media_collection()
     if not collection_ref:
+        print(f"Could not get media collection reference for {file_path}")
         return None
     
     try:
         # Create a document ID from the path (with some cleaning)
         doc_id = file_path.replace('/', '_')
         
-        # Get file document
+        # Get document from Firestore
         doc_ref = collection_ref.document(doc_id)
         doc = doc_ref.get()
         
-        if not doc.exists:
+        if doc.exists:
+            return doc.to_dict()
+        else:
+            print(f"File not found in Firestore: {file_path}")
             return None
-        
-        return doc.to_dict()
     except Exception as e:
         print(f"Error getting file from Firestore: {str(e)}")
         return None
@@ -166,15 +170,18 @@ def delete_file_from_firestore(file_path):
     # Get media collection reference
     collection_ref = get_media_collection()
     if not collection_ref:
+        print(f"Could not get media collection reference for deleting {file_path}")
         return False
     
     try:
         # Create a document ID from the path (with some cleaning)
         doc_id = file_path.replace('/', '_')
         
-        # Delete file document
+        # Delete document from Firestore
         doc_ref = collection_ref.document(doc_id)
         doc_ref.delete()
+        
+        print(f"Successfully deleted file from Firestore: {file_path}")
         return True
     except Exception as e:
         print(f"Error deleting file from Firestore: {str(e)}")
@@ -182,5 +189,8 @@ def delete_file_from_firestore(file_path):
 
 # Functions for backward compatibility
 def upload_file_to_firebase(file_path, destination_blob_name, custom_bucket=None):
-    print("Using Firestore instead of Storage")
-    return upload_file_to_firestore(file_path, destination_blob_name)
+    try:
+        return upload_file_to_firestore(file_path, destination_blob_name)
+    except Exception as e:
+        print(f"Error in backward compatibility upload: {str(e)}")
+        return None

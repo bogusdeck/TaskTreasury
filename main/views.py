@@ -19,23 +19,35 @@ def serve_media_file(request, path):
     This view retrieves files stored as base64-encoded strings in Firestore documents
     and serves them with the appropriate content type.
     """
-    # Get file data from Firebase Firestore
-    file_data = get_file_from_firestore(path)
-    
-    if not file_data or 'data' not in file_data:
-        raise Http404(f"File not found: {path}")
-    
-    # Decode base64 data
     try:
-        decoded_data = base64.b64decode(file_data['data'])
+        # Get file data from Firebase Firestore
+        file_data = get_file_from_firestore(path)
+        
+        if not file_data:
+            # Return a default image or placeholder if available
+            # For now, just raise a 404
+            raise Http404(f"File not found: {path}")
+        
+        if 'data' not in file_data:
+            return HttpResponse(f"Invalid file data format for: {path}", status=500)
+        
+        # Decode base64 data
+        try:
+            decoded_data = base64.b64decode(file_data['data'])
+        except Exception as e:
+            return HttpResponse(f"Error decoding file: {str(e)}", status=500)
+        
+        # Create response with appropriate content type
+        content_type = file_data.get('content_type', 'application/octet-stream')
+        response = HttpResponse(decoded_data, content_type=content_type)
+        
+        # Add cache headers
+        response['Cache-Control'] = 'public, max-age=86400'  # 24 hours
+        
+        # Add content disposition header for downloads if needed
+        # response['Content-Disposition'] = f'inline; filename="{file_data.get("name", "file")}"'
+        
+        return response
     except Exception as e:
-        return HttpResponse(f"Error decoding file: {str(e)}", status=500)
-    
-    # Create response with appropriate content type
-    content_type = file_data.get('content_type', 'application/octet-stream')
-    response = HttpResponse(decoded_data, content_type=content_type)
-    
-    # Add content disposition header for downloads if needed
-    # response['Content-Disposition'] = f'inline; filename="{file_data.get("name", "file")}"'
-    
-    return response
+        print(f"Error serving media file {path}: {str(e)}")
+        return HttpResponse(f"Server error: Unable to retrieve file", status=500)
