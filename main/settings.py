@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_auth',
     'main',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -143,5 +144,13 @@ MEDIA_URL = '/media/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Firebase Storage settings
+if not DEBUG or os.environ.get('USE_FIREBASE_STORAGE') == 'True':
+    # Use Firebase Realtime Database for media storage instead of Firebase Storage
+    DEFAULT_FILE_STORAGE = 'main.firebase_database_storage.FirebaseDatabaseStorage'
+    
+    # Database URL format: https://{project-id}-default-rtdb.firebaseio.com
+    FIREBASE_DATABASE_URL = f"https://{os.environ.get('FIREBASE_PROJECT_ID', '')}-default-rtdb.firebaseio.com"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
