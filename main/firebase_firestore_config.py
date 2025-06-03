@@ -11,28 +11,38 @@ def format_private_key(private_key):
     if not private_key:
         return ''
     
-    # Replace literal \n with newlines
-    private_key = private_key.replace('\\n', '\n')
+    # Check if the key is already properly formatted
+    if private_key.startswith('-----BEGIN PRIVATE KEY-----') and private_key.endswith('-----END PRIVATE KEY-----'):
+        # If it's already in PEM format, just ensure newlines are correct
+        return private_key
     
-    # Also try the single backslash version
-    private_key = private_key.replace('\n', '\n')
+    # For Vercel deployment, the private key is often provided as a base64 string without headers
+    # Let's create a proper PEM format
     
-    # Ensure the key starts with -----BEGIN PRIVATE KEY----- and ends with -----END PRIVATE KEY-----
-    if not private_key.startswith('-----BEGIN PRIVATE KEY-----'):
-        private_key = '-----BEGIN PRIVATE KEY-----\n' + private_key
-    if not private_key.endswith('-----END PRIVATE KEY-----'):
-        private_key = private_key + '\n-----END PRIVATE KEY-----'
+    # Remove any existing newlines or spaces
+    clean_key = private_key.replace('\n', '').replace('\\n', '').replace(' ', '')
     
-    # Ensure proper PEM format with newlines every 64 characters
-    if '\n' not in private_key[28:-26]:
-        # Extract the base64 part
-        match = re.search(r'-----BEGIN PRIVATE KEY-----\n?(.+?)\n?-----END PRIVATE KEY-----', private_key, re.DOTALL)
+    # Check if it's a raw base64 string (no PEM headers)
+    if not clean_key.startswith('-----'):
+        # Format as proper PEM with newlines every 64 characters
+        chunks = [clean_key[i:i+64] for i in range(0, len(clean_key), 64)]
+        formatted_key = '-----BEGIN PRIVATE KEY-----\n' + '\n'.join(chunks) + '\n-----END PRIVATE KEY-----'
+        return formatted_key
+    
+    # If we got here, it's not a standard format - try to extract any base64 content
+    # and reformat it properly
+    try:
+        # Try to find any base64-like content
+        base64_pattern = re.compile(r'[A-Za-z0-9+/=]{20,}')  # Look for base64 characters
+        match = base64_pattern.search(private_key)
         if match:
-            base64_str = match.group(1).replace('\n', '')
-            # Insert newline every 64 characters
-            formatted_base64 = '\n'.join([base64_str[i:i+64] for i in range(0, len(base64_str), 64)])
-            private_key = f"-----BEGIN PRIVATE KEY-----\n{formatted_base64}\n-----END PRIVATE KEY-----"
+            base64_content = match.group(0)
+            chunks = [base64_content[i:i+64] for i in range(0, len(base64_content), 64)]
+            return '-----BEGIN PRIVATE KEY-----\n' + '\n'.join(chunks) + '\n-----END PRIVATE KEY-----'
+    except Exception as e:
+        print(f"Error reformatting private key: {e}")
     
+    # If all else fails, return the original key
     return private_key
 
 # Path to the Firebase service account key file
@@ -69,12 +79,45 @@ def initialize_firebase():
                 print(f"Private key format: {FIREBASE_CONFIG['private_key'][:10]}...{FIREBASE_CONFIG['private_key'][-10:]} (length: {key_length})")
             else:
                 print("WARNING: Firebase private key is empty")
+            
+            # First attempt: Try direct initialization with the config dictionary
+            try:
+                cred = credentials.Certificate(FIREBASE_CONFIG)
+                app = firebase_admin.initialize_app(cred)
+                print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
+                return app
+            except Exception as e:
+                print(f"First initialization attempt failed: {str(e)}")
+                # Continue to alternative method
+            
+            # Alternative method: Create a temporary service account file
+            # This is more reliable for Vercel deployment
+            import json
+            import tempfile
+            
+            # Create a temporary file with the Firebase config
+            with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as temp_file:
+                json.dump(FIREBASE_CONFIG, temp_file)
+                temp_file_path = temp_file.name
+            
+            try:
+                # Initialize with the temporary file
+                cred = credentials.Certificate(temp_file_path)
+                app = firebase_admin.initialize_app(cred)
+                print(f"Initialized Firebase with temporary file and project ID: {FIREBASE_CONFIG['project_id']}")
                 
-            # Create credentials and initialize app
-            cred = credentials.Certificate(FIREBASE_CONFIG)
-            app = firebase_admin.initialize_app(cred)
-            print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
-            return app
+                # Clean up the temporary file
+                import os
+                os.unlink(temp_file_path)
+                
+                return app
+            except Exception as e:
+                print(f"Second initialization attempt failed: {str(e)}")
+                # Clean up the temporary file
+                import os
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+                raise
         except Exception as e:
             print(f"Error initializing Firebase: {str(e)}")
             # Print more detailed error information
