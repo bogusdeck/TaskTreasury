@@ -1,8 +1,27 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "main/wsgi.py"
+      "dest": "/api/index.py"
     }
-  ]
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "main.vercel_settings",
+    "DEBUG": "False",
+    "ALLOWED_HOSTS": "*,.vercel.app,.now.sh",
+    "DB_NAME": "postgres",
+    "DB_USER": "postgres.xrmhnjircitaveyfjxne",
+    "DB_PASSWORD": "12345Tv",
+    "DB_HOST": "aws-0-ap-south-1.pooler.supabase.com",
+    "DB_PORT": "6543",
+    "DB_SSLMODE": "require"
+  }
 }

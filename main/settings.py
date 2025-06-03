@@ -65,20 +65,48 @@ WSGI_APPLICATION = 'main.wsgi.app'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Direct PostgreSQL configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-        'OPTIONS': {
-            'sslmode': os.environ.get('DB_SSLMODE', 'require'),
-        },
-    },
-}
+# Database configuration with support for both individual credentials and DATABASE_URL
+import dj_database_url
+
+# First try to use DATABASE_URL if it's set
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    # Use the DATABASE_URL if provided
+    DATABASES = {
+        'default': dj_database_url.parse(database_url)
+    }
+else:
+    # Otherwise, try to use individual database settings
+    db_name = os.environ.get('DB_NAME')
+    db_user = os.environ.get('DB_USER')
+    db_password = os.environ.get('DB_PASSWORD')
+    db_host = os.environ.get('DB_HOST')
+    db_port = os.environ.get('DB_PORT')
+    
+    if db_name and db_user and db_password and db_host:
+        # Use PostgreSQL with individual credentials
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': db_name,
+                'USER': db_user,
+                'PASSWORD': db_password,
+                'HOST': db_host,
+                'PORT': db_port or '5432',
+                'OPTIONS': {
+                    'sslmode': os.environ.get('DB_SSLMODE', 'require'),
+                },
+            },
+        }
+    else:
+        # Fallback to SQLite if no database configuration is provided
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
