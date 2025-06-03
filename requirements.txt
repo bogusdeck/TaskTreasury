@@ -2,10 +2,10 @@ asgiref==3.8.1
 certifi==2018.10.15
 chardet==3.0.4
 defusedxml==0.5.0
-Django==2.2.18
+Django>=4.2,<5.0
 django-filter==2.0.0
 django-rest-auth==0.9.3
-djangorestframework==3.11.2
+djangorestframework==3.14.0
 dynamic-django-forms==0.1.11
 idna==2.7
 Markdown==3.0.1
@@ -24,4 +24,4 @@ psycopg2-binary==2.9.9
 dj-database-url==0.5.0
 python-dotenv==1.0.0
 setuptools==65.5.0
-
+packaging==23.2
