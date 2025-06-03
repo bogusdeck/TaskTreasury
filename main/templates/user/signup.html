@@ -1,13 +1,168 @@
 {% extends 'base.html' %}
+{% load form_tags %}
 {% block title %} Signup {% endblock title %}
 {% block name%} User {%endblock name%}
 {% block content %}
-<div class="flex flex-col items-center justify-center mt-20">
-  <h2 class="text-4xl text-white bg-orange-500 p-4">Signup</h2>
-  <form method="post" class="flex flex-col space-y-4 text-black bg-orange-300 p-5">
-    {% csrf_token %} {{ form.as_p }}
-    <button type="submit" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">Sigup</button>
-  </form>
-  <a href="{% url 'signin' %}" class="text-orange-300 p-2">already have an account ?</a>
+<div class="max-w-md mx-auto px-4 sm:px-6 py-16">
+  <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+    <div class="p-4 bg-primary-700 text-white font-medium">
+      <h2 class="text-xl text-center">Create Your Account</h2>
+    </div>
+    <div class="p-6">
+      <form method="post" class="space-y-6" onsubmit="return validateForm();">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="space-y-2">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ field.label }}</label>
+          <div class="mt-1">
+            {{ field|add_class:"block w-full px-3 py-2 border border-primary-700 bg-dark-900 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-white" }}
+          </div>
+          {% if field.errors %}
+          <div class="text-red-500 text-sm mt-1">
+            {{ field.errors }}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <div>
+          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+            Sign Up
+          </button>
+        </div>
+      </form>
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-400">
+          Already have an account?
+          <a href="{% url 'signin' %}" class="font-medium text-primary-400 hover:text-primary-300 transition duration-150 ease-in-out">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
+<!-- Include jQuery and Toastr directly in the page -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    // Configure toastr
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof toastr !== 'undefined') {
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: "toast-bottom-right",
+                timeOut: 5000,
+                preventDuplicates: true,
+                newestOnTop: true
+            };
+            
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        toastr.error("{{ message }}", "Error");
+                    {% elif message.tags == 'warning' %}
+                        toastr.warning("{{ message }}", "Warning");
+                    {% elif message.tags == 'success' %}
+                        toastr.success("{{ message }}", "Success");
+                    {% else %}
+                        toastr.info("{{ message }}", "Information");
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        toastr.error("{{ error }}", "{{ field.label }}");
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    toastr.error("{{ error }}", "Registration Error");
+                {% endfor %}
+            {% endif %}
+        }
+    });
+    
+    // Client-side form validation
+    function validateForm() {
+        var isValid = true;
+        var emailField = document.getElementById('id_email');
+        var passwordField = document.getElementById('id_password');
+        var fnameField = document.getElementById('id_fname');
+        var lnameField = document.getElementById('id_lname');
+        
+        // Check for empty fields
+        if (!fnameField.value.trim()) {
+            toastr.error("First name is required", "First Name");
+            fnameField.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            fnameField.classList.remove('border-red-500');
+        }
+        
+        if (!lnameField.value.trim()) {
+            toastr.error("Last name is required", "Last Name");
+            lnameField.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            lnameField.classList.remove('border-red-500');
+        }
+        
+        if (!emailField.value.trim()) {
+            toastr.error("Email address is required", "Email");
+            emailField.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            // Check email format
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailField.value.trim())) {
+                toastr.error("Please enter a valid email address", "Email");
+                emailField.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                emailField.classList.remove('border-red-500');
+            }
+        }
+        
+        if (!passwordField.value) {
+            toastr.error("Password is required", "Password");
+            passwordField.classList.add('border-red-500');
+            isValid = false;
+        } else if (passwordField.value.length < 6) {
+            toastr.error("Password must be at least 6 characters long", "Password");
+            passwordField.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            passwordField.classList.remove('border-red-500');
+        }
+        
+        return isValid;
+    }
+    
+    // Fallback notification function if toastr isn't available
+    function notify(type, message, title) {
+        if (typeof toastr !== 'undefined') {
+            switch(type) {
+                case 'success':
+                    toastr.success(message, title);
+                    break;
+                case 'info':
+                    toastr.info(message, title);
+                    break;
+                case 'warning':
+                    toastr.warning(message, title);
+                    break;
+                case 'error':
+                    toastr.error(message, title);
+                    break;
+                default:
+                    toastr.info(message, title);
+            }
+        } else {
+            // Fallback to alert if toastr is not available
+            alert(title + ': ' + message);
+        }
+    }
+</script>
 {% endblock content %}

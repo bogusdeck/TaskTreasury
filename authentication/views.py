@@ -29,14 +29,30 @@ def signup(request):
             lname = form.cleaned_data["lname"]
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
-            user_to_create = User(
-                fname=fname, lname=lname, email=email, password=password
-            )
-            user_to_create.save()
-            print(user_to_create)
-            print("account bn gaya")
-            messages.success(request, "Account created successfully. please login")
-            return redirect("/accounts/login/")  # change krna hai
+            
+            # Check if user with this email already exists
+            try:
+                existing_user = User.objects.get(email=email)
+                messages.error(request, "An account with this email already exists")
+                return render(request, "user/signup.html", {"form": form})
+            except User.DoesNotExist:
+                # Create new user
+                try:
+                    user_to_create = User(
+                        fname=fname, lname=lname, email=email, password=password
+                    )
+                    user_to_create.save()
+                    print("Account created successfully")
+                    messages.success(request, "Account created successfully. Please login")
+                    return redirect("/accounts/login/")
+                except Exception as e:
+                    print(f"Error creating account: {str(e)}")
+                    messages.error(request, f"Error creating account: {str(e)}")
+                    return render(request, "user/signup.html", {"form": form})
+        else:
+            # Form is invalid, errors will be shown via toastr
+            print("Form errors:", form.errors)
+            return render(request, "user/signup.html", {"form": form})
     else:
         form = UserSignupForm()
 
@@ -49,22 +65,31 @@ def signin(request):
         if form.is_valid():
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
-            user = User.objects.get(email=email)
-            print(check_password(password, user.password))
-            print(user)
-            if user is not None and check_password(password, user.password):
-                login(request, user)
-                user.token = str(uuid4)
-                print(user.token)
-                user.save()
-                if user.email == "admin@admin.com":
-                    return redirect("/accounts/adminHome/")
+            try:
+                user = User.objects.get(email=email)
+                print(check_password(password, user.password))
+                print(user)
+                if user is not None and check_password(password, user.password):
+                    login(request, user)
+                    user.token = str(uuid4)
+                    print(user.token)
+                    user.save()
+                    if user.email == "admin@admin.com":
+                        return redirect("/accounts/adminHome/")
+                    else:
+                        return redirect("/accounts/profile/{}".format(user.email))
                 else:
-                    return redirect("/accounts/profile/{}".format(user.email))
-            else:
-                print("nahi hua")
-                messages.error(request, "Invalid email or password")
-                return redirect("accounts/home/")
+                    print("Invalid password")
+                    messages.error(request, "Invalid password")
+                    return render(request, "user/login.html", {"form": form})
+            except User.DoesNotExist:
+                print("User not found")
+                messages.error(request, "No account found with this email")
+                return render(request, "user/login.html", {"form": form})
+        else:
+            # Form is invalid, errors will be shown via toastr
+            print("Form errors:", form.errors)
+            return render(request, "user/login.html", {"form": form})
     else:
         form = UserLoginForm()
 
@@ -186,20 +211,39 @@ def taskDetails(request, task_id):
         return redirect("alreadyDone")
 
     if request.method == "POST":
+        print("POST request received")
+        print("FILES:", request.FILES)
+        print("POST data:", request.POST)
+        
         form = TaskScreenshotForm(request.POST, request.FILES)
+        print("Form is valid:", form.is_valid())
+        
+        if not form.is_valid():
+            print("Form errors:", form.errors)
+        
         if form.is_valid():
             screenshot = form.cleaned_data["image"]
+            print("Screenshot received:", screenshot)
+            
+            # Create screenshots directory if it doesn't exist
             upload_path = os.path.join(settings.MEDIA_ROOT, "screenshots")
-            print(upload_path)
+            os.makedirs(upload_path, exist_ok=True)
+            
+            print("Upload path:", upload_path)
             fs = FileSystemStorage(location=upload_path)
             filename = fs.save(screenshot.name, screenshot)
-            print(filename)
-            print(screenshot.name)
+            print("Saved filename:", filename)
+            
+            # Add points and mark task as completed
             request.user.points += task.points 
             request.user.save()
             request.user.tasks.add(task)
-
-        return redirect("task")
+            print("Task marked as completed, points added:", task.points)
+            
+            return redirect("task")
+        else:
+            # Re-render the form with errors
+            return render(request, "user/taskDetails.html", {"task": task, "form": form, "error": "Please upload a valid image file."})
     else:
         form = TaskScreenshotForm()
 

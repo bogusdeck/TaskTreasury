@@ -1,18 +1,136 @@
 {% extends "base.html" %}
-{% block title %}Add Task{% endblock %}
-{% block name%} admin {%endblock name%}
+{% block title %}Add New Task{% endblock %}
+{% block name%} <span class="text-primary-300">Admin Dashboard</span> {%endblock name%}
+
+
+
 {% block content %}
 
-<a href = "{% url 'adminHome' %}" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">Back</a>
-<div class="flex flex-col items-center justify-center mt-20">
-  <h2 class="flex text-4xl text-white bg-orange-500 p-4 mb-2">Add task</h2>
-  <form method="post" class="flex flex-col space-y-4 text-black bg-orange-300 p-5" enctype="multipart/form-data">
-    {% csrf_token %} {{ form.as_p }}
-    <button type="submit" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">SUBMIT</button>
-  </form>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+    <!-- Admin Sidebar Navigation -->
+    <div class="md:col-span-1">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Admin Controls</h2>
+        </div>
+        <div class="p-4 space-y-3">
+          <a href="{% url 'adminHome' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Manage Tasks</span>
+          </a>
+          <a href="{% url 'adminaddApp' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Add New Task</span>
+          </a>
+          <form action="{% url 'signout' %}" method="post" class="mt-6">
+            {% csrf_token %}
+            <button type="submit" class="block w-full py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150 ease-in-out text-center">
+              <span>Log Out</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="md:col-span-4">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Add New Task</h2>
+        </div>
+        <div class="p-6">
+          <form method="post" class="space-y-6" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {% for field in form %}
+              <div class="{% if field.name == 'description' or field.name == 'logo' %}md:col-span-2{% endif %}">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">{{ field.label }}</label>
+                
+                {% if field.name == 'description' %}
+                <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" rows="4" class="w-full px-3 py-2 bg-dark-900 border border-primary-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-200">{{ field.value|default:'' }}</textarea>
+                {% elif field.name == 'logo' %}
+                <div class="flex items-center justify-center w-full">
+                  <label for="{{ field.id_for_label }}" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary-700 rounded-lg cursor-pointer bg-dark-900 hover:bg-dark-700 transition-colors duration-150 ease-in-out">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                      <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                    </div>
+                    <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="file" class="hidden" accept="image/*" />
+                  </label>
+                </div>
+                {% elif field.name == 'category' or field.name == 'subcategory' %}
+                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="w-full px-3 py-2 bg-dark-900 border border-primary-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-200">
+                  {% for choice in field.field.choices %}
+                  <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                  {% endfor %}
+                </select>
+                {% else %}
+                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}" class="w-full px-3 py-2 bg-dark-900 border border-primary-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-200" />
+                {% endif %}
+                
+                {% if field.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                  {% for error in field.errors %}
+                  <p>{{ error }}</p>
+                  {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if field.help_text %}
+                <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            
+            <div class="flex justify-end mt-6">
+              <a href="{% url 'adminHome' %}" class="px-4 py-2 bg-dark-900 text-gray-300 rounded-md hover:bg-dark-700 transition-colors duration-150 ease-in-out mr-3">Cancel</a>
+              <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-500 transition-colors duration-150 ease-in-out">
+                <span>Add Task</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
   
+  <!-- Include jQuery and Toastr directly in the page -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  
   <script>
+    // Configure toastr once it's loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof toastr !== 'undefined') {
+        toastr.options = {
+          closeButton: true,
+          progressBar: true,
+          positionClass: "toast-top-right",
+          timeOut: 5000
+        };
+      }
+    });
+    
+    // Custom notification function that works with or without toastr
+    function notify(type, message, title) {
+      if (typeof toastr !== 'undefined') {
+        // Use toastr if available
+        if (type === 'success') toastr.success(message, title);
+        else if (type === 'info') toastr.info(message, title);
+        else if (type === 'warning') toastr.warning(message, title);
+        else if (type === 'error') toastr.error(message, title);
+      } else {
+        // Fallback to alert if toastr is not available
+        alert(title + ': ' + message);
+      }
+    }
+    
     function updateSubcategories() {
       var categorySelect = document.getElementById('id_category');
       var subcategorySelect = document.getElementById('id_subcategory');
@@ -96,5 +214,98 @@
     document.getElementById('id_category').addEventListener('change', updateSubcategories);
     
     updateSubcategories();
+
+    // Simpler drag and drop implementation
+    window.addEventListener('load', function() {
+      // Wait for everything to be fully loaded
+      setTimeout(function() {
+        var fileInput = document.getElementById('id_logo');
+        if (!fileInput) {
+          notify('error', 'Could not initialize file upload. Please refresh the page and try again.', 'Upload Error');
+          return;
+        }
+
+        var dropArea = fileInput.parentElement;
+        if (!dropArea) {
+          notify('error', 'Could not initialize drag and drop. Please use the standard file selector.', 'Upload Error');
+          return;
+        }
+
+        var uploadText = dropArea.querySelector('p');
+        if (!uploadText) {
+          notify('warning', 'File upload area not properly initialized. You can still select files normally.', 'Upload Warning');
+          return;
+        }
+
+        var originalText = uploadText.innerHTML;
+        var icon = dropArea.querySelector('svg');
+        var subText = dropArea.querySelector('p:nth-child(3)');
+
+        function highlight() {
+          dropArea.style.borderColor = '#0d9488'; // primary-500
+          dropArea.style.backgroundColor = '#1e293b'; // dark-700
+        }
+
+        function unhighlight() {
+          dropArea.style.borderColor = '#0f766e'; // primary-700
+          dropArea.style.backgroundColor = '#111827'; // dark-900
+        }
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+          preventDefaults(e);
+          unhighlight();
+
+          var dt = e.dataTransfer;
+          var files = dt.files;
+
+          if (files && files.length) {
+            fileInput.files = files;
+            updateFileInfo(files[0].name);
+          }
+        }
+
+        function updateFileInfo(fileName) {
+          if (icon && subText) {
+            icon.style.display = 'none';
+            subText.style.display = 'none';
+          }
+          uploadText.innerHTML = '<span style="font-weight: bold;">File:</span> ' + fileName;
+          notify('success', 'File "' + fileName + '" selected successfully', 'Upload Ready');
+        }
+
+        // Handle file selection via input
+        fileInput.addEventListener('change', function() {
+          if (this.files && this.files.length) {
+            updateFileInfo(this.files[0].name);
+          } else {
+            uploadText.innerHTML = originalText;
+            if (icon && subText) {
+              icon.style.display = '';
+              subText.style.display = '';
+            }
+          }
+        });
+
+        // Handle drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(eventName) {
+          dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(function(eventName) {
+          dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(function(eventName) {
+          dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        dropArea.addEventListener('drop', handleDrop, false);
+      }, 500); // Small delay to ensure DOM is fully processed
+    });
   </script>
 {% endblock %}

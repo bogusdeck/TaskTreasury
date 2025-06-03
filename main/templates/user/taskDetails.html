@@ -1,124 +1,402 @@
 <!-- user/taskDetails.html -->
 
 {% extends 'base.html' %}
-{% block title %} TaskDetails {% endblock title %} 
+{% block title %} Task Details {% endblock title %} 
 {% block name %}
-<span class="test-white"> {{user.fname}} {{user.lname}} </span>
+<span class="text-primary-300"> {{user.fname}} {{user.lname}} </span>
 {% endblock name %}
 {% block content %}
-<div class="grid grid-cols-5 gap-4">
-    <div class="col-span-1 bg-gray-200 space-y-5 mt-5 mb-5 pb-4">
-        <a href="{% url 'applist' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Home</a>
-        <a href="{% url 'profile' email=user.email %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Profile</a>
-        <a href="{% url 'points' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Points</a>
-        <a href="{% url 'task' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Task</a>
-        <form action="{% url 'signout' %}" method="post" class="flex items-center justify-center">
-            {% csrf_token %}
-            <button type="submit" class="text-white p-2 bg-orange-500 flex flex-col m-4">Log Out</button>
-        </form>
-    </div>
-    <div class="col-span-4 bg-gray-300 p-3">
-        <div class="container mx-auto mt-10">
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div class="grid grid-cols-5">
-                    <div class="col-span-4">
-                        <div class="px-4 py-5 sm:px-6">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ task.name }}
-                            </h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                                {{ task.category }}
-                            </p>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                                downloading link 
-                            </p>
-                            <a href='{{task.link}}' class="text-blue-800 underline mt-2 hover:text-blue-300">{{task.link}}</a>
-                        </div>
-                    </div>
-                    <div class="col-span-1">
-                        <img src="{{ task.logo.url }}" alt="{{ task.name }} Logo" class="max-w-40 max-h-40 p-2 m-2 object-cover aspect-w-1 aspect-h-1" />
-                    </div>
-                </div>
-                <div class="border-t border-gray-200">
-                    <dl>
-                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500">Subcategory</dt>
-                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
-                                {{ task.subcategory }}
-                            </dd>
-                        </div>
-                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500">Points</dt>
-                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
-                                {{ task.points }}
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-                <div class="flex flex-col items-center justify-center h-full border-t border-gray-200 mb-3">
-                    <h1 class="mb-4 mt-4">Add Task with Screenshot</h1>
-                    <form method="post" enctype="multipart/form-data" id="uploadForm">
-                        {% csrf_token %}
-                        <div class="mb-4 " id="dropArea">
-                            {% comment %} <label for="imageInput" class=" flex items-center justify-center text-gray-700 font-bold mb-2">Drag and Drop Image Here</label> {% endcomment %}
-                            <div id="imageInput" name="image" class="flex flex-col items-center justify-center">
-                                <div class="ml-14"> {{ form }} </div>
-                                <button type="submit" class=" flex items-center justify-center text-white p-2 bg-orange-500 flex flex-col m-4">Submit</button>
-                            </div> 
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+    <!-- Sidebar Navigation -->
+    <div class="md:col-span-1">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Navigation</h2>
         </div>
+        <div class="p-4 space-y-3">
+          <a href="{% url 'applist' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Home</span>
+          </a>
+          <a href="{% url 'profile' email=user.email %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Profile</span>
+          </a>
+          <a href="{% url 'points' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Points</span>
+          </a>
+          <a href="{% url 'task' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Tasks</span>
+          </a>
+          <form action="{% url 'signout' %}" method="post" class="mt-6">
+            {% csrf_token %}
+            <button type="submit" class="block w-full py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150 ease-in-out text-center">
+              <span>Log Out</span>
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+    
+    <!-- Main Content Area -->
+    <div class="md:col-span-4">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+        <!-- Task Header -->
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Task Details</h2>
+        </div>
+        
+        <!-- Task Information -->
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="md:col-span-3">
+              <h3 class="text-2xl font-bold text-primary-300 mb-2">{{ task.name }}</h3>
+              <div class="flex items-center space-x-3 mb-4">
+                <span class="px-3 py-1 bg-primary-900 text-primary-300 rounded-full text-sm">{{ task.category }}</span>
+                <span class="px-3 py-1 bg-dark-900 text-gray-300 rounded-full text-sm">{{ task.subcategory }}</span>
+              </div>
+              <div class="bg-dark-900 rounded-lg p-4 border border-primary-800 mb-4">
+                <h4 class="text-gray-300 font-medium mb-2">Download Link</h4>
+                <a href='{{task.link}}' class="text-primary-400 hover:text-primary-300 break-all transition duration-150 ease-in-out flex items-center">
+                  <span>{{task.link}}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+              <div class="flex items-center space-x-4">
+                <div class="bg-dark-900 rounded-lg p-4 border border-primary-800 flex-1">
+                  <div class="text-gray-400 text-sm mb-1">Points Reward</div>
+                  <div class="flex items-center">
+                    <span class="text-2xl font-bold text-primary-300">{{ task.points }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-1 flex justify-center">
+              <div class="bg-dark-900 p-4 rounded-lg border border-primary-800 w-full">
+                <img src="{{ task.logo.url }}" alt="{{ task.name }} Logo" class="w-full h-auto object-contain rounded" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Upload Section -->
+          <div class="mt-8 bg-dark-900 rounded-lg p-6 border border-primary-800">
+            <h3 class="text-xl font-semibold text-primary-300 mb-4">Submit Task Completion</h3>
+            {% if error %}
+            <div class="bg-red-900 text-white p-4 rounded-md mb-4">
+              {{ error }}
+            </div>
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data" id="uploadForm" class="space-y-4">
+              {% csrf_token %}
+              
+              {% if form.errors %}
+              <div class="bg-red-900 text-white p-4 rounded-md mb-4">
+                <p class="font-bold">Please correct the following errors:</p>
+                <ul class="list-disc pl-5 mt-2">
+                  {% for field in form %}
+                    {% for error in field.errors %}
+                      <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+              
+              <div id="dropArea" class="border-2 border-dashed border-primary-700 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="text-gray-300 mb-2 font-medium">Drag and drop your screenshot here</p>
+                <p class="text-gray-400 text-sm">or click to browse files</p>
+                <div id="previewContainer" class="mt-4 hidden w-full"></div>
+              </div>
+              
+              <!-- Make the file input visible for debugging -->
+              <div class="mt-4 mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Upload Screenshot:</label>
+                {{ form.image }}
+              </div>
+              <div class="flex justify-end">
+                <button type="submit" class="py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+                  Submit Task
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+<!-- Include jQuery and Toastr directly in the page -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
-    const dropArea = document.getElementById("dropArea");
-    const imageInput = document.getElementById("imageInput");
-
-    dropArea.addEventListener("dragover", (event) => {
-        event.preventDefault(); 
-        dropArea.classList.add("border-blue-500");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-        dropArea.classList.remove("border-blue-500");
-    });
-
-    dropArea.addEventListener("drop", (event) => {
-        event.preventDefault();
-        dropArea.classList.remove("border-blue-500");
-
-        const file = event.dataTransfer.files[0];
-        if (file.type.startsWith("image/")) {
-            imageInput.files = event.dataTransfer.files;
-            handleImage(file);
+    // Configure toastr once it's loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof toastr !== 'undefined') {
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: "toast-top-right",
+                timeOut: 5000
+            };
         }
     });
-
-    imageInput.addEventListener("change", () => {
-        const file = imageInput.files[0];
-        if (file.type.startsWith("image/")) {
-            handleImage(file);
+    
+    // Custom notification function that works with or without toastr
+    function notify(type, message, title) {
+        if (typeof toastr !== 'undefined') {
+            // Use toastr if available
+            if (type === 'success') toastr.success(message, title);
+            else if (type === 'info') toastr.info(message, title);
+            else if (type === 'warning') toastr.warning(message, title);
+            else if (type === 'error') toastr.error(message, title);
         } else {
-            alert("Please select a valid image file.");
-            imageInput.value = "";
+            // Fallback to alert if toastr is not available
+            alert(title + ': ' + message);
+        }
+    }
+    
+    // Get the form elements
+    const dropArea = document.getElementById("dropArea");
+    const uploadForm = document.getElementById("uploadForm");
+    const imageInput = document.querySelector("#id_image"); // Get the specific file input by its ID
+    
+    // Store the original content of the drop area
+    const originalDropAreaContent = dropArea.innerHTML;
+    
+    // Add event listeners for drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false); // Prevent browser opening file if dropped outside
+    });
+    
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    // Remove highlight when item is dragged away or dropped
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    // Handle dropped files
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    // Handle click to browse files
+    dropArea.addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    // Handle file selection via input
+    imageInput.addEventListener('change', function() {
+        console.log('File input changed');
+        if (this.files && this.files.length) {
+            const file = this.files[0];
+            console.log('Selected file:', file.name, 'type:', file.type);
+            
+            if (isValidImageFile(file)) {
+                handleFile(file);
+            } else {
+                notify('error', 'Please select a valid image file (JPEG, PNG, GIF, etc.)', 'Invalid File');
+                this.value = '';
+            }
+        } else {
+            console.log('No files selected');
         }
     });
-
-    function handleImage(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            dropArea.innerHTML = `<img src="${e.target.result}" alt="Selected Image" class="max-w-40 max-h-40 p-2 m-2 object-cover aspect-w-1 aspect-h-1" />`;
+    
+    // Debug function to show what's in the file input
+    function debugFileInput() {
+        console.log('Debug file input:');
+        console.log('- Input element:', imageInput);
+        console.log('- Has files:', imageInput.files && imageInput.files.length > 0);
+        if (imageInput.files && imageInput.files.length > 0) {
+            console.log('- File name:', imageInput.files[0].name);
+            console.log('- File type:', imageInput.files[0].type);
+            console.log('- File size:', imageInput.files[0].size);
+        }
+    }
+    
+    // Form submission validation
+    uploadForm.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission
+        console.log('Form submission triggered');
+        debugFileInput(); // Call our debug function
+        
+        if (!imageInput || !imageInput.files || !imageInput.files.length) {
+            notify('warning', 'Please select an image file to submit the task', 'Submission Incomplete');
+            console.log('Submission prevented: No file selected');
+            return false;
+        }
+        
+        // Create a new FormData directly from the form
+        const formData = new FormData();
+        
+        // Add the CSRF token
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Add the file with the exact field name Django expects
+        formData.append('image', imageInput.files[0]);
+        
+        // Log what's in the FormData
+        console.log('Form data entries:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+        }
+        
+        // Use XMLHttpRequest instead of fetch for better compatibility
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', window.location.href, true);
+        
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // Success - check if we got redirected
+                if (xhr.responseURL && xhr.responseURL !== window.location.href) {
+                    notify('success', 'Task submitted successfully!', 'Success');
+                    window.location.href = xhr.responseURL;
+                } else {
+                    // We got a response but no redirect - likely an error
+                    notify('error', 'There was an issue with your submission. Please try again.', 'Submission Failed');
+                }
+            } else {
+                // Error
+                notify('error', 'Server error: ' + xhr.status, 'Submission Failed');
+            }
         };
+        
+        xhr.onerror = function () {
+            notify('error', 'Network error occurred', 'Submission Failed');
+        };
+        
+        // Show processing notification
+        notify('info', 'Submitting your task...', 'Processing');
+        
+        // Send the request
+        xhr.send(formData);
+    });
+    
+    // Utility functions
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight() {
+        dropArea.classList.add('border-primary-500');
+        dropArea.classList.add('bg-dark-700');
+        dropArea.classList.remove('border-primary-700');
+        dropArea.classList.remove('bg-dark-900');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('border-primary-500');
+        dropArea.classList.remove('bg-dark-700');
+        dropArea.classList.add('border-primary-700');
+        dropArea.classList.add('bg-dark-900');
+    }
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files && files.length) {
+            const file = files[0];
+            if (isValidImageFile(file)) {
+                try {
+                    // Create a new DataTransfer object
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    // Set the file to the input
+                    imageInput.files = dataTransfer.files;
+                    console.log('File assigned to input:', imageInput.files[0].name);
+                    
+                    // Trigger the change event manually
+                    const event = new Event('change', { bubbles: true });
+                    imageInput.dispatchEvent(event);
+                    
+                    // Call our debug function to verify
+                    debugFileInput();
+                    
+                    handleFile(file);
+                } catch (error) {
+                    console.error('Error setting file:', error);
+                    // Fallback method for browsers that don't support DataTransfer
+                    notify('info', 'Please use the file browser to select your image', 'Browser Limitation');
+                    // Trigger a click on the file input
+                    imageInput.click();
+                }
+            } else {
+                notify('error', 'Please drop a valid image file (JPEG, PNG, GIF, etc.)', 'Invalid File');
+            }
+        }
+    }
+    
+    function isValidImageFile(file) {
+        return file && file.type.startsWith('image/');
+    }
+    
+    function handleFile(file) {
+        const reader = new FileReader();
+        
+        reader.onloadstart = function() {
+            notify('info', 'Processing image...', 'Loading');
+        };
+        
+        reader.onload = function(e) {
+            // Create a preview image
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'Task Screenshot';
+            img.className = 'max-w-full max-h-64 rounded-lg shadow-lg';
+            
+            // Clear the drop area and add the image
+            dropArea.innerHTML = '';
+            dropArea.appendChild(img);
+            
+            // Add a remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 shadow-lg hover:bg-red-700 transition-colors duration-200';
+            removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>';
+            
+            // Make the drop area relative for absolute positioning of the button
+            dropArea.style.position = 'relative';
+            dropArea.appendChild(removeBtn);
+            
+            // Add event listener to remove button
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent triggering the dropArea click
+                resetDropArea();
+                imageInput.value = ''; // Clear the file input
+                notify('success', 'Image removed', 'Removed');
+            });
+            
+            notify('success', 'Image "' + file.name + '" ready for submission', 'Image Loaded');
+        };
+        
+        reader.onerror = function() {
+            notify('error', 'Error reading file', 'File Error');
+            resetDropArea();
+        };
+        
         reader.readAsDataURL(file);
     }
-
-    document.getElementById("uploadForm").addEventListener("submit", (event) => {
-        if (!imageInput.files.length) {
-            event.preventDefault();
-            alert("Please select an image file.");
-        }
-    });
+    
+    function resetDropArea() {
+        dropArea.innerHTML = originalDropAreaContent;
+        dropArea.style.position = '';
+    }
 </script>
 {% endblock content %}

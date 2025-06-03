@@ -1,32 +1,79 @@
 {% extends "base.html" %}
 {% block title %}Points{% endblock %}
 {% if user.is_authenticated %}
-{% block name%} <span class="test-white"> {{user.fname}} {{user.lname}} </span> {%endblock name%}
+{% block name%} <span class="text-primary-300"> {{user.fname}} {{user.lname}} </span> {%endblock name%}
 {% endif %}
 
 {% block content %}
 {% if user.is_authenticated %}
 
-
-<div class="grid grid-cols-5 gap-4">
-    <div class="col-span-1 bg-gray-200 space-y-5 mt-5 mb-5 pb-4">
-        <a href="{% url 'applist' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Home</a>
-        <a href="{% url 'profile' email=user.email %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Profile</a>
-        <a href="{% url 'points' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">points</a>
-        <a href="{% url 'task' %}" class="text-white p-2 bg-orange-500 flex flex-col m-4">Task</a>
-        <form action="{% url 'signout' %}" method="post" class="flex items-center justify-center ">
-          {% csrf_token %}
-          <button type="submit" class="text-white p-2 bg-orange-500 flex flex-col m-4">Log Out</button>
-        </form>
-    </div>
-    <div class="col-span-4 bg-gray-300 p-3">
-        <div class="flex flex-col items-center justify-center h-full">
-            <div class="flex items-center justify-center font-bold text-4xl">Total point</div>
-            <div class="bg-orange-500 rounded-xl text-4xl p-4 m-4">
-            {{user.points}}
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+    <!-- Sidebar Navigation -->
+    <div class="md:col-span-1">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700">
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Navigation</h2>
         </div>
+        <div class="p-4 space-y-3">
+          <a href="{% url 'applist' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Home</span>
+          </a>
+          <a href="{% url 'profile' email=user.email %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Profile</span>
+          </a>
+          <a href="{% url 'points' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Points</span>
+          </a>
+          <a href="{% url 'task' %}" class="block w-full py-2 px-4 rounded-md bg-primary-600 hover:bg-primary-500 text-white font-medium transition duration-150 ease-in-out text-center">
+            <span>Tasks</span>
+          </a>
+          <form action="{% url 'signout' %}" method="post" class="mt-6">
+            {% csrf_token %}
+            <button type="submit" class="block w-full py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150 ease-in-out text-center">
+              <span>Log Out</span>
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+    
+    <!-- Main Content Area -->
+    <div class="md:col-span-4">
+      <div class="bg-dark-800 rounded-lg shadow-lg overflow-hidden border border-primary-700 h-full">
+        <div class="p-4 bg-primary-700 text-white font-medium">
+          <h2 class="text-lg">Your Points</h2>
+        </div>
+        <div class="p-6">
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="text-2xl text-gray-300 mb-6">Total Points Earned</div>
+            <div class="bg-dark-900 rounded-full w-48 h-48 flex items-center justify-center border-8 border-primary-600 shadow-lg">
+              <div class="text-5xl font-bold text-primary-300">{{user.points}}</div>
+            </div>
+            
+            <div class="mt-12 bg-dark-900 rounded-lg p-6 border border-primary-800 max-w-md w-full">
+              <h3 class="text-xl font-semibold text-primary-300 mb-4">Points Summary</h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center pb-2 border-b border-primary-800">
+                  <span class="text-gray-300">Current Balance</span>
+                  <span class="font-bold text-primary-300">{{user.points}}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-300">Tasks Completed</span>
+                  <a href="{% url 'task' %}" class="text-primary-400 hover:text-primary-300 transition duration-150 ease-in-out flex items-center">
+                    View Tasks
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endif %}
