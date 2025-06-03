@@ -10,9 +10,9 @@ If you like my work, consider buying me a coffee! ☕️
 </div>
 
 
-## TaskTreasury
+## Django TaskReward
 
-Django Web Application
+Django Web Application: Task Reward System
 
 ## Overview
 
