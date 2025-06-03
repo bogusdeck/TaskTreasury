@@ -11,8 +11,6 @@ urlpatterns = [
     path('api/', include('assignment_api.urls')),
     path('accounts/', include('authentication.urls')),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
-    path("health/", health_check, name="health_check"),
-    # path("accounts/", include("django.contrib.auth.urls")),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
