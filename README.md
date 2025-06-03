@@ -1,106 +1,74 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fpython%2Fdjango&demo-title=Django%20%2B%20Vercel&demo-description=Use%20Django%204%20on%20Vercel%20with%20Serverless%20Functions%20using%20the%20Python%20Runtime.&demo-url=https%3A%2F%2Fdjango-template.vercel.app%2F&demo-image=https://assets.vercel.com/image/upload/v1669994241/random/django.png)
+<p align="center">
+    <img width="200" src="https://github.com/bogusdeck/django-assignment/assets/80052733/e768091a-a844-48c4-8fc0-e5a9bc3bd83d">
+</p>
 
-# Django + Vercel
+If you like my work, consider buying me a coffee! ☕️
+<div align="center">
+<a href="https://www.buymeacoffee.com/bogusdeck" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" width="150" />
+</a>
+</div>
 
-This example shows how to use Django 4 on Vercel with Serverless Functions using the [Python Runtime](https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/python).
 
-## Demo
+## TaskTreasury
 
-https://django-template.vercel.app/
+Django Web Application
 
-## How it Works
+## Overview
 
-Our Django application, `example` is configured as an installed application in `api/settings.py`:
+This project is a simple web application built using Django, Django REST Framework, and Tailwind CSS. It allows administrators to add tasks (app details) with associated points, and users can earn points by downloading the app and uploading a screenshot.
 
-```python
-# api/settings.py
-INSTALLED_APPS = [
-    # ...
-    'example',
-]
+## Features
+
+- **Task Management**: Admins can add tasks with details such as app name, link, category, subcategory, points, and logo.
+- **User Authentication**: Implemented using Django REST Framework for login and authentication.
+- **Drag and Drop**: Utilizes drag and drop feature for smooth uploading of screenshots.
+- **Dynamic Forms**: JavaScript is used to handle dynamic forms for task creation.
+- **API Endpoints**: Django REST Framework is used to create API endpoints for user login and authentication.
+- **Frontend Styling**: Tailwind CSS CDN is used for frontend styling.
+
+## ER Diagram
+```markdown
++------------------+             +----------------------+             +----------------------+
+|       User       |             |        Task          |             |      user_task       |
++------------------+             +----------------------+             +----------------------+
+| id (PK)          |   0..*      | id (PK)              |   0..*      | id (PK)              |
+| email (unique)   | <---------  | name (unique)        | <---------  | user_id (FK)         |
+| fname            |             | link                 |             | task_id (FK)         |
+| lname            |             | category              |             +----------------------+
+| date_joined      |             | subcategory          |
+| is_active        |             | points               |
+| is_staff         |             | logo                 |
+| points           |             +----------------------+
+| ifLogged         |
+| token            |
++------------------+
 ```
 
-We allow "\*.vercel.app" subdomains in `ALLOWED_HOSTS`, in addition to 127.0.0.1:
+## Technologies Used
 
-```python
-# api/settings.py
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
-```
+- **Backend**: Django, Django REST Framework
+- **Frontend**: HTML, CSS (Tailwind CSS)
+- **Database**: SQLite (default in Django)
+- **JavaScript**: Vanilla JavaScript
+- **API**: Django REST Framework
 
-The `wsgi` module must use a public variable named `app` to expose the WSGI application:
+## Installation
 
-```python
-# api/wsgi.py
-app = get_wsgi_application()
-```
+1. Clone the repository: `git clone https://github.com/your/repository.git`
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run migrations: `python manage.py migrate`
+4. Run the server: `python manage.py runserver`
 
-The corresponding `WSGI_APPLICATION` setting is configured to use the `app` variable from the `api.wsgi` module:
+## Usage
 
-```python
-# api/settings.py
-WSGI_APPLICATION = 'api.wsgi.app'
-```
+1. Access the admin panel to add tasks: `http://localhost:8000/admin`
+2. admin credientials is inside the urls.py file
+3. Use the provided API endpoints for user login and authentication.
+4. Access the web application frontend to view and interact with tasks.
+5. Download the app associated with a task and upload a screenshot to earn points.
 
-There is a single view which renders the current time in `example/views.py`:
+## Contributing
 
-```python
-# example/views.py
-from datetime import datetime
+Contributions are welcome! Feel free to open a pull request or submit an issue for any bugs or feature requests.
 
-from django.http import HttpResponse
-
-
-def index(request):
-    now = datetime.now()
-    html = f'''
-    <html>
-        <body>
-            <h1>Hello from Vercel!</h1>
-            <p>The current time is { now }.</p>
-        </body>
-    </html>
-    '''
-    return HttpResponse(html)
-```
-
-This view is exposed a URL through `example/urls.py`:
-
-```python
-# example/urls.py
-from django.urls import path
-
-from example.views import index
-
-
-urlpatterns = [
-    path('', index),
-]
-```
-
-Finally, it's made accessible to the Django server inside `api/urls.py`:
-
-```python
-# api/urls.py
-from django.urls import path, include
-
-urlpatterns = [
-    ...
-    path('', include('example.urls')),
-]
-```
-
-This example uses the Web Server Gateway Interface (WSGI) with Django to enable handling requests on Vercel with Serverless Functions.
-
-## Running Locally
-
-```bash
-python manage.py runserver
-```
-
-Your Django application is now available at `http://localhost:8000`.
-
-## One-Click Deploy
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fpython%2Fdjango&demo-title=Django%20%2B%20Vercel&demo-description=Use%20Django%204%20on%20Vercel%20with%20Serverless%20Functions%20using%20the%20Python%20Runtime.&demo-url=https%3A%2F%2Fdjango-template.vercel.app%2F&demo-image=https://assets.vercel.com/image/upload/v1669994241/random/django.png)
