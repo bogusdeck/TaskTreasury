@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'assignment_api',
     'authentication',
     'rest_framework',
-    'rest_auth',
+    'dj_rest_auth',
     'main',
     'storages',
 ]

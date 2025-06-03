@@ -3,6 +3,37 @@ import base64
 import mimetypes
 import firebase_admin
 from firebase_admin import credentials, firestore
+import re
+
+# Helper function to properly format the Firebase private key
+def format_private_key(private_key):
+    """Format the private key by handling various newline formats"""
+    if not private_key:
+        return ''
+    
+    # Replace literal \n with newlines
+    private_key = private_key.replace('\\n', '\n')
+    
+    # Also try the single backslash version
+    private_key = private_key.replace('\n', '\n')
+    
+    # Ensure the key starts with -----BEGIN PRIVATE KEY----- and ends with -----END PRIVATE KEY-----
+    if not private_key.startswith('-----BEGIN PRIVATE KEY-----'):
+        private_key = '-----BEGIN PRIVATE KEY-----\n' + private_key
+    if not private_key.endswith('-----END PRIVATE KEY-----'):
+        private_key = private_key + '\n-----END PRIVATE KEY-----'
+    
+    # Ensure proper PEM format with newlines every 64 characters
+    if '\n' not in private_key[28:-26]:
+        # Extract the base64 part
+        match = re.search(r'-----BEGIN PRIVATE KEY-----\n?(.+?)\n?-----END PRIVATE KEY-----', private_key, re.DOTALL)
+        if match:
+            base64_str = match.group(1).replace('\n', '')
+            # Insert newline every 64 characters
+            formatted_base64 = '\n'.join([base64_str[i:i+64] for i in range(0, len(base64_str), 64)])
+            private_key = f"-----BEGIN PRIVATE KEY-----\n{formatted_base64}\n-----END PRIVATE KEY-----"
+    
+    return private_key
 
 # Path to the Firebase service account key file
 # For production, store this securely and reference via environment variables
@@ -10,7 +41,7 @@ FIREBASE_CONFIG = {
     "type": "service_account",
     "project_id": os.environ.get('FIREBASE_PROJECT_ID', ''),
     "private_key_id": os.environ.get('FIREBASE_PRIVATE_KEY_ID', ''),
-    "private_key": os.environ.get('FIREBASE_PRIVATE_KEY', '').replace('\\n', '\n'),
+    "private_key": format_private_key(os.environ.get('FIREBASE_PRIVATE_KEY', '')),
     "client_email": os.environ.get('FIREBASE_CLIENT_EMAIL', ''),
     "client_id": os.environ.get('FIREBASE_CLIENT_ID', ''),
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -27,12 +58,28 @@ def initialize_firebase():
         return app
     except ValueError:
         try:
+            # Verify that we have the minimum required credentials
+            if not FIREBASE_CONFIG['project_id'] or not FIREBASE_CONFIG['client_email']:
+                print("Missing required Firebase credentials: project_id or client_email")
+                return None
+                
+            # Log private key format for debugging (first 10 chars and last 10 chars)
+            if FIREBASE_CONFIG['private_key']:
+                key_length = len(FIREBASE_CONFIG['private_key'])
+                print(f"Private key format: {FIREBASE_CONFIG['private_key'][:10]}...{FIREBASE_CONFIG['private_key'][-10:]} (length: {key_length})")
+            else:
+                print("WARNING: Firebase private key is empty")
+                
+            # Create credentials and initialize app
             cred = credentials.Certificate(FIREBASE_CONFIG)
             app = firebase_admin.initialize_app(cred)
             print(f"Initialized Firebase with project ID: {FIREBASE_CONFIG['project_id']}")
             return app
         except Exception as e:
             print(f"Error initializing Firebase: {str(e)}")
+            # Print more detailed error information
+            import traceback
+            traceback.print_exc()
             return None
 
 # Get a reference to the Firestore database
