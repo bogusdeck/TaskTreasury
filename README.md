@@ -1,6 +1,9 @@
 <p align="center">
-    <img width="200" src="https://github.com/bogusdeck/django-assignment/assets/80052733/e768091a-a844-48c4-8fc0-e5a9bc3bd83d">
+    <img width="200" src="https://github.com/user-attachments/assets/b057ef0e-6d5c-4a1c-aa42-ad852c79c827">
 </p>
+
+
+
 
 If you like my work, consider buying me a coffee! ☕️
 <div align="center">
@@ -11,6 +14,8 @@ If you like my work, consider buying me a coffee! ☕️
 
 
 ## TaskTreasury
+
+https://tasktreasury.vercel.app
 
 Django Web Application: Task Reward System
 
