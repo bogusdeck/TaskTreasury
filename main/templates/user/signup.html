@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %} Signup {% endblock title %}
+{% block name%} User {%endblock name%}
+{% block content %}
+<div class="flex flex-col items-center justify-center mt-20">
+  <h2 class="text-4xl text-white bg-orange-500 p-4">Signup</h2>
+  <form method="post" class="flex flex-col space-y-4 text-black bg-orange-300 p-5">
+    {% csrf_token %} {{ form.as_p }}
+    <button type="submit" class="bg-orange-500 hover:bg-orange-300 p-2 text-white">Sigup</button>
+  </form>
+  <a href="{% url 'signin' %}" class="text-orange-300 p-2">already have an account ?</a>
+</div>
+{% endblock content %}
